@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 const GOOGLE_SCRIPT_BASE_URL =
-  "https://script.google.com/macros/s/AKfycbz63_q9k47NrSNbjqxyghDKdXh_-FRO1JU6dHX0QWNMt5icbi5JkGzOHbUxrjime3dp/exec";
+  "https://script.google.com/macros/s/AKfycbzQL_J-FsO2wVp0X7Rg_LqiuPV1-955vEDhYK3F-X80dNaQVXG7jm7_UND4l81Jzygb/exec";
 
 // Proxy route with dynamic query params
 app.get("/get-metrics", async (req, res) => {
