@@ -81,7 +81,7 @@ app.listen(PORT, () => {
 const getAuthToken = async () => {
   try {
     const glific_backend_url = process.env.GLIFIC_URL || "";
-    const response = await axios.post(`${glific_backend_url}/session`, {
+    const response = await axios.post(`${glific_backend_url}/v1/session`, {
       user: {
         phone: process.env.PHONE,
         password: process.env.PASSWORD,
