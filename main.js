@@ -12,14 +12,10 @@ app.use(express.json());
 const GOOGLE_SCRIPT_BASE_URL =
   "https://script.google.com/macros/s/AKfycbzQL_J-FsO2wVp0X7Rg_LqiuPV1-955vEDhYK3F-X80dNaQVXG7jm7_UND4l81Jzygb/exec";
 
-// Proxy route with dynamic query params
-app.get("/get-metrics", async (req, res) => {
+const resumeFlow = async (startDate, endDate) => {
   try {
-    // Extract query parameters from request
-    const { startDate, endDate } = req.query;
-
     if (!startDate || !endDate) {
-      return res.status(200).json({
+      console.log({
         error: "Missing required query parameters: startDate and endDate",
       });
     }
@@ -32,12 +28,47 @@ app.get("/get-metrics", async (req, res) => {
       maxRedirects: 5,
     });
 
-    res.json(response.data);
+    const graphqlResponse = await axios.post(
+      "https://api.prod.glific.com/api",
+      {
+        query: `
+          mutation resumeContactFlow($flowId: ID!, $contactId: ID!, $result: Json!) {
+            resumeContactFlow(flowId: $flowId, contactId: $contactId, result: $result) {
+              success
+              errors {
+                key
+                message
+              }
+            }
+          }
+        `,
+        variables: {
+          flowId: "26171",
+          contactId: "1702210",
+          result: response.data,
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer YOUR_ACCESS_TOKEN`, // Replace with your actual access token
+        },
+      }
+    );
+    console.log(response.data, graphqlResponse);
   } catch (error) {
-    res
-      .status(200)
-      .json({ error: "Failed to fetch data", details: error.message });
+    console.log({ error: "Failed to fetch data", details: error.message });
   }
+};
+
+// Proxy route with dynamic query params
+app.get("/get-metrics", async (req, res) => {
+  const { startDate, endDate } = req.query;
+  resumeFlow(startDate, endDate);
+
+  res.json({
+    success: true,
+  });
 });
 
 app.listen(PORT, () => {
