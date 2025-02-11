@@ -1,12 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-const https = require("https");
 require("dotenv").config();
-
-const agent = new https.Agent({
-  rejectUnauthorized: false,
-});
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -33,7 +28,7 @@ const resumeFlow = async (startDate, endDate, contact, flowId) => {
       maxRedirects: 5,
     });
 
-    let data = JSON.stringify({
+    const data = JSON.stringify({
       query: `mutation resumeContactFlow($flowId: ID!, $contactId: ID!, $result: Json!) {
                 resumeContactFlow(flowId: $flowId, contactId: $contactId, result: $result) {
                   success
@@ -60,10 +55,11 @@ const resumeFlow = async (startDate, endDate, contact, flowId) => {
       },
     };
 
-    const data2 = await axios.post(config?.url, data, {
-      headers: config?.headers,
-      httpsAgent: agent,
-    });
+    if (token) {
+      const data2 = await axios.post(config?.url, data, {
+        headers: config?.headers,
+      });
+    }
   } catch (error) {
     console.log({ error: "Failed to fetch data", details: error.message });
   }
@@ -85,20 +81,14 @@ app.listen(PORT, () => {
 const getAuthToken = async () => {
   try {
     const glific_backend_url = process.env.GLIFIC_URL || "";
-    const response = await axios.post(
-      `${glific_backend_url}/session`,
-      {
-        user: {
-          phone: process.env.PHONE,
-          password: process.env.PASSWORD,
-        },
+    const response = await axios.post(`${glific_backend_url}/session`, {
+      user: {
+        phone: process.env.PHONE,
+        password: process.env.PASSWORD,
       },
-      {
-        httpsAgent: agent,
-      }
-    );
+    });
     return response.data.data.access_token;
   } catch (error) {
-    console.log("Error in getting token", error.message);
+    console.log("Error in getting token", error);
   }
 };
