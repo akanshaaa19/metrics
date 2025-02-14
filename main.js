@@ -67,11 +67,11 @@ const resumeFlow = async (startDate, endDate, contact, flowId) => {
 
 app.post("/get-metrics", async (req, res) => {
   const { startDate, endDate, contact, flowId } = req.body;
-  resumeFlow(startDate, endDate, contact, flowId);
-
   res.json({
     success: true,
   });
+
+  resumeFlow(startDate, endDate, contact, flowId);
 });
 
 app.listen(PORT, () => {
